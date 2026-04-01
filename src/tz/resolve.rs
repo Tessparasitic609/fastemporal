@@ -89,13 +89,16 @@ impl<'de> serde::Deserialize<'de> for TzName {
 
 // ─── Resolution ──────────────────────────────────────────────────────────────
 
-use crate::error::{Error, Result};
+use crate::error::Result;
+#[cfg(any(feature = "tz-embedded", feature = "tz-system"))]
+use crate::error::Error;
 
 /// Returns `(utc_offset_seconds, is_dst)` for the given IANA timezone name at
 /// the given Unix timestamp (in **seconds**).
 ///
 /// When the `tz-embedded` or `tz-system` feature is not enabled this always
 /// returns `Ok((0, false))` (i.e., UTC).
+#[cfg_attr(not(any(feature = "tz-embedded", feature = "tz-system")), allow(unused_variables))]
 pub fn resolve_offset(tz: &TzName, unix_secs: i64) -> Result<(i32, bool)> {
     if tz.is_utc() {
         return Ok((0, false));

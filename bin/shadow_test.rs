@@ -53,6 +53,7 @@ struct Case {
     op: Op,
 }
 
+#[allow(dead_code)]
 enum Op {
     FromIsoToIso(String),
     PlusDays { iso: String, days: i32 },
