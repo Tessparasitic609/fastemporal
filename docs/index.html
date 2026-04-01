@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>fastemporal - Interactive Benchmark Demo</title>
+    <meta name="description" content="Interactive benchmark comparison between fastemporal (Rust) and Luxon (JavaScript)">
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #020617;
+            min-height: 100vh;
+        }
+        #root {
+            width: 100%;
+            height: 100%;
+        }
+        /* Custom scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 5px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #475569;
+        }
+        /* Firefox scrollbar */
+        * {
+            scrollbar-width: thin;
+            scrollbar-color: #334155 #0f172a;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+
+        const BENCHMARKS = [
+          { name: "diff(days)",        rust: 59.5,   luxon: 12831.2, unit: "ns" },
+          { name: "from_iso parse",    rust: 102.1,  luxon: 3823.0,  unit: "ns" },
+          { name: "plus(days:7)",      rust: 94.9,   luxon: 3539.0,  unit: "ns" },
+          { name: "in_timezone()",     rust: 191.6,  luxon: 7875.8,  unit: "ns" },
+          { name: "start_of('day')",   rust: 72.7,   luxon: 1221.1,  unit: "ns" },
+          { name: "format(yyyy-MM-dd)",rust: 100.2,  luxon: 1870.4,  unit: "ns" },
+          { name: "to_iso()",          rust: 69.0,   luxon: 510.9,   unit: "ns" },
+          { name: "now()",             rust: 74.3,   luxon: 681.3,   unit: "ns" },
+          { name: "1M tight loop",     rust: 87.5,   luxon: 3526.3,  unit: "ns/op" },
+        ];
+
+        const CODE_LINES = [
+          { text: "use fastemporal::{ZonedDateTime, Duration};", type: "use" },
+          { text: "", type: "blank" },
+          { text: "let dt = ZonedDateTime::now()", type: "code" },
+          { text: "    .plus(Duration::days(7))", type: "chain" },
+          { text: '    .in_timezone("America/New_York")', type: "chain" },
+          { text: "    .unwrap();", type: "chain" },
+          { text: "", type: "blank" },
+          { text: 'println!("{}", dt.to_iso());', type: "code" },
+          { text: "// 2025-06-14T14:32:00.000-04:00[America/New_York]", type: "comment" },
+        ];
+
+        function AnimatedBar({ rust, luxon, name, unit, animate }) {
+          const speedup = Math.round(luxon / rust);
+          const rustPct = (rust / luxon) * 100;
+
+          return (
+            <div style={{ marginBottom: "18px" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "5px", alignItems: "baseline" }}>
+                <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: "12px", color: "#94a3b8" }}>
+                  {name}
+                </span>
+                <span style={{
+                  fontFamily: "'IBM Plex Mono', monospace", fontSize: "11px",
+                  color: "#f97316", fontWeight: "700",
+                  background: "rgba(249,115,22,0.1)", padding: "1px 7px", borderRadius: "10px"
+                }}>
+                  {speedup}×
+                </span>
+              </div>
+
+              <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "3px" }}>
+                <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: "10px", color: "#64748b", width: "72px", textAlign: "right" }}>
+                  fastemporal
+                </span>
+                <div style={{ flex: 1, height: "14px", background: "#1e293b", borderRadius: "3px", overflow: "hidden" }}>
+                  <div style={{
+                    width: animate ? `${rustPct}%` : "0%",
+                    height: "100%",
+                    background: "linear-gradient(90deg, #ea580c, #f97316)",
+                    borderRadius: "3px",
+                    transition: "width 1.2s cubic-bezier(0.16, 1, 0.3, 1)",
+                    transitionDelay: "0.15s"
+                  }} />
+                </div>
+                <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: "10px", color: "#f97316", width: "68px" }}>
+                  {rust} {unit}
+                </span>
+              </div>
+
+              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: "10px", color: "#64748b", width: "72px", textAlign: "right" }}>
+                  Luxon (JS)
+                </span>
+                <div style={{ flex: 1, height: "14px", background: "#1e293b", borderRadius: "3px", overflow: "hidden" }}>
+                  <div style={{
+                    width: animate ? "100%" : "0%",
+                    height: "100%",
+                    background: "linear-gradient(90deg, #334155, #475569)",
+                    borderRadius: "3px",
+                    transition: "width 1.2s cubic-bezier(0.16, 1, 0.3, 1)",
+                    transitionDelay: "0.05s"
+                  }} />
+                </div>
+                <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: "10px", color: "#64748b", width: "68px" }}>
+                  {luxon.toLocaleString()} {unit}
+                </span>
+              </div>
+            </div>
+          );
+        }
+
+        function CodeLine({ line, visible }) {
+          const colors = {
+            use:     "#fb923c",
+            code:    "#e2e8f0",
+            chain:   "#94a3b8",
+            comment: "#4ade80",
+            blank:   "transparent",
+          };
+
+          if (line.type === "blank") return <div style={{ height: "10px" }} />;
+
+          return (
+            <div style={{
+              fontFamily: "'IBM Plex Mono', monospace",
+              fontSize: "12.5px",
+              lineHeight: "1.7",
+              color: colors[line.type],
+              opacity: visible ? 1 : 0,
+              transform: visible ? "translateX(0)" : "translateX(-8px)",
+              transition: "opacity 0.4s ease, transform 0.4s ease",
+              whiteSpace: "pre",
+            }}>
+              {line.text}
+            </div>
+          );
+        }
+
+        function App() {
+          const [activeTab, setActiveTab] = useState("benchmarks");
+          const [animate, setAnimate] = useState(false);
+          const [visibleLines, setVisibleLines] = useState([]);
+          const [sortBy, setSortBy] = useState("speedup");
+          const hasAnimated = useRef(false);
+
+          useEffect(() => {
+            const timer = setTimeout(() => {
+              setAnimate(true);
+              hasAnimated.current = true;
+            }, 300);
+            return () => clearTimeout(timer);
+          }, []);
+
+          useEffect(() => {
+            if (activeTab === "demo") {
+              setVisibleLines([]);
+              CODE_LINES.forEach((_, i) => {
+                setTimeout(() => {
+                  setVisibleLines(prev => [...prev, i]);
+                }, i * 120);
+              });
+            }
+          }, [activeTab]);
+
+          useEffect(() => {
+            if (activeTab === "benchmarks" && !hasAnimated.current) {
+              setTimeout(() => setAnimate(true), 300);
+            }
+            if (activeTab === "benchmarks") {
+              setAnimate(false);
+              setTimeout(() => setAnimate(true), 100);
+            }
+          }, [activeTab]);
+
+          const sorted = [...BENCHMARKS].sort((a, b) => {
+            if (sortBy === "speedup") return (b.luxon / b.rust) - (a.luxon / a.rust);
+            if (sortBy === "name") return a.name.localeCompare(b.name);
+            return a.rust - b.rust;
+          });
+
+          const maxSpeedup = Math.round(Math.max(...BENCHMARKS.map(b => b.luxon / b.rust)));
+          const avgSpeedup = Math.round(BENCHMARKS.reduce((s, b) => s + b.luxon / b.rust, 0) / BENCHMARKS.length);
+
+          const TAB = ({ id, label }) => (
+            <button onClick={() => setActiveTab(id)} style={{
+              background: activeTab === id ? "#f97316" : "transparent",
+              color: activeTab === id ? "#0f172a" : "#64748b",
+              border: "none",
+              padding: "6px 18px",
+              borderRadius: "6px",
+              fontFamily: "'IBM Plex Mono', monospace",
+              fontSize: "12px",
+              fontWeight: "600",
+              cursor: "pointer",
+              transition: "all 0.2s",
+            }}>{label}</button>
+          );
+
+          return (
+            <div style={{
+              minHeight: "100vh",
+              background: "#020617",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              padding: "24px",
+              fontFamily: "'IBM Plex Mono', monospace",
+            }}>
+              <div style={{ width: "100%", maxWidth: "720px" }}>
+
+                <div style={{ marginBottom: "28px" }}>
+                  <div style={{ display: "flex", alignItems: "baseline", gap: "2px", marginBottom: "6px" }}>
+                    <span style={{ fontSize: "32px", fontWeight: "700", color: "#f1f5f9", letterSpacing: "-1px" }}>fast</span>
+                    <span style={{ fontSize: "32px", fontWeight: "700", color: "#f97316", letterSpacing: "-1px" }}>temporal</span>
+                    <span style={{
+                      marginLeft: "10px", fontSize: "11px", color: "#475569",
+                      background: "#1e293b", padding: "2px 8px", borderRadius: "4px",
+                      border: "1px solid #334155", verticalAlign: "middle"
+                    }}>v0.1.1</span>
+                  </div>
+                  <p style={{ fontSize: "13px", color: "#64748b", margin: 0 }}>
+                    Luxon + Temporal · pure Rust · zero GC · embedded IANA tz
+                  </p>
+                </div>
+
+                <div style={{
+                  display: "grid", gridTemplateColumns: "repeat(4, 1fr)",
+                  gap: "10px", marginBottom: "24px"
+                }}>
+                  {[
+                    { label: "max speedup", value: `${maxSpeedup}×`, color: "#f97316" },
+                    { label: "avg speedup", value: `${avgSpeedup}×`, color: "#fb923c" },
+                    { label: "tests passing", value: "332", color: "#4ade80" },
+                    { label: "hot allocs", value: "0", color: "#a78bfa" },
+                  ].map(s => (
+                    <div key={s.label} style={{
+                      background: "#0f172a", border: "1px solid #1e293b",
+                      borderRadius: "8px", padding: "14px 12px", textAlign: "center"
+                    }}>
+                      <div style={{ fontSize: "22px", fontWeight: "700", color: s.color, lineHeight: 1 }}>{s.value}</div>
+                      <div style={{ fontSize: "10px", color: "#475569", marginTop: "5px" }}>{s.label}</div>
+                    </div>
+                  ))}
+                </div>
+
+                <div style={{
+                  background: "#0f172a", border: "1px solid #1e293b",
+                  borderRadius: "10px", overflow: "hidden"
+                }}>
+                  <div style={{
+                    display: "flex", gap: "4px", padding: "8px",
+                    borderBottom: "1px solid #1e293b", background: "#0a0f1e"
+                  }}>
+                    <TAB id="benchmarks" label="benchmarks" />
+                    <TAB id="demo" label="5-line demo" />
+                    <TAB id="types" label="types" />
+                  </div>
+
+                  <div style={{ padding: "24px" }}>
+
+                    {activeTab === "benchmarks" && (
+                      <div>
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
+                          <span style={{ fontSize: "11px", color: "#475569" }}>
+                            Linux x64 · release build · Rust criterion vs Node.js v22
+                          </span>
+                          <div style={{ display: "flex", gap: "6px" }}>
+                            {["speedup", "name", "rust"].map(s => (
+                              <button key={s} onClick={() => setSortBy(s)} style={{
+                                background: sortBy === s ? "#1e293b" : "transparent",
+                                color: sortBy === s ? "#f97316" : "#475569",
+                                border: `1px solid ${sortBy === s ? "#334155" : "transparent"}`,
+                                padding: "2px 8px", borderRadius: "4px",
+                                fontSize: "10px", cursor: "pointer", fontFamily: "inherit"
+                              }}>
+                                sort: {s}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                        {sorted.map((b) => (
+                          <AnimatedBar key={b.name} {...b} animate={animate} />
+                        ))}
+                      </div>
+                    )}
+
+                    {activeTab === "demo" && (
+                      <div>
+                        <div style={{
+                          background: "#020617", borderRadius: "8px",
+                          padding: "20px", border: "1px solid #1e293b",
+                          marginBottom: "16px"
+                        }}>
+                          <div style={{ display: "flex", gap: "7px", marginBottom: "16px" }}>
+                            <div style={{ width: 10, height: 10, borderRadius: "50%", background: "#ff5f57" }} />
+                            <div style={{ width: 10, height: 10, borderRadius: "50%", background: "#febc2e" }} />
+                            <div style={{ width: 10, height: 10, borderRadius: "50%", background: "#28c840" }} />
+                            <span style={{ marginLeft: "8px", fontSize: "11px", color: "#334155" }}>main.rs</span>
+                          </div>
+                          {CODE_LINES.map((line, i) => (
+                            <CodeLine key={i} line={line} visible={visibleLines.includes(i)} />
+                          ))}
+                        </div>
+                        <div style={{
+                          background: "#0a0f1e", border: "1px solid #1e293b",
+                          borderRadius: "6px", padding: "10px 14px"
+                        }}>
+                          <span style={{ fontSize: "10px", color: "#4ade80" }}>▶ cargo run</span>
+                          <div style={{ fontSize: "12px", color: "#94a3b8", marginTop: "4px", fontFamily: "'IBM Plex Mono', monospace" }}>
+                            2025-06-14T14:32:00.000-04:00[America/New_York]
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {activeTab === "types" && (
+                      <div>
+                        {[
+                          {
+                            name: "ZonedDateTime",
+                            size: "80 bytes · Copy",
+                            color: "#f97316",
+                            desc: "Timestamp + IANA timezone. The main workhorse.",
+                            methods: ["now()", "from_iso(s)", "plus(dur)", "minus(dur)", "in_timezone(tz)", "start_of(unit)", "end_of(unit)", "diff(other, unit)", "format(fmt)", "to_iso()"]
+                          },
+                          {
+                            name: "PlainDate",
+                            size: "8 bytes · Copy",
+                            color: "#4ade80",
+                            desc: "Calendar date. No time, no timezone.",
+                            methods: ["new(y,m,d)", "from_iso(s)", "add_days(n)", "add_months(n)", "days_until(other)", "weekday()", "to_iso()"]
+                          },
+                          {
+                            name: "Duration",
+                            size: "40 bytes · Copy",
+                            color: "#a78bfa",
+                            desc: "Calendar + clock span. Fluent builder.",
+                            methods: ["days(n)", "hours(n)", "months(n)", "builder().days(7).hours(3).build()", "negate()", "is_zero()"]
+                          },
+                          {
+                            name: "PlainTime / PlainDateTime",
+                            size: "8 / 16 bytes · Copy",
+                            color: "#38bdf8",
+                            desc: "Time-only and datetime-only types.",
+                            methods: ["new(h,m,s,ns)", "from_iso(s)", "to_iso()"]
+                          },
+                        ].map(t => (
+                          <div key={t.name} style={{
+                            background: "#020617", border: "1px solid #1e293b",
+                            borderRadius: "8px", padding: "16px", marginBottom: "12px"
+                          }}>
+                            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "6px" }}>
+                              <span style={{ color: t.color, fontWeight: "700", fontSize: "13px" }}>{t.name}</span>
+                              <span style={{ color: "#334155", fontSize: "10px" }}>{t.size}</span>
+                            </div>
+                            <p style={{ color: "#64748b", fontSize: "11px", margin: "0 0 10px" }}>{t.desc}</p>
+                            <div style={{ display: "flex", flexWrap: "wrap", gap: "5px" }}>
+                              {t.methods.map(m => (
+                                <span key={m} style={{
+                                  background: "#0f172a", border: "1px solid #1e293b",
+                                  color: "#94a3b8", fontSize: "10px",
+                                  padding: "2px 7px", borderRadius: "4px"
+                                }}>.{m}</span>
+                              ))}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                  </div>
+                </div>
+
+                <div style={{
+                  display: "flex", justifyContent: "center", gap: "24px",
+                  marginTop: "20px"
+                }}>
+                  {[
+                    { label: "crates.io", href: "https://crates.io/crates/fastemporal" },
+                    { label: "docs.rs", href: "https://docs.rs/fastemporal" },
+                    { label: "GitHub", href: "https://github.com/BaselAshraf81/fastemporal" },
+                  ].map(l => (
+                    <a key={l.label} href={l.href} style={{
+                      color: "#64748b", fontSize: "11px", textDecoration: "none",
+                      fontFamily: "'IBM Plex Mono', monospace",
+                    }}
+                      onMouseEnter={e => e.target.style.color = "#f97316"}
+                      onMouseLeave={e => e.target.style.color = "#64748b"}
+                    >
+                      {l.label} ↗
+                    </a>
+                  ))}
+                </div>
+
+              </div>
+            </div>
+          );
+        }
+
+        ReactDOM.render(<App />, document.getElementById('root'));
+    </script>
+</body>
+</html>
