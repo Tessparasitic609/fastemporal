@@ -10,6 +10,7 @@
 [![License: MIT OR Apache-2.0](https://img.shields.io/badge/license-MIT%20OR%20Apache--2.0-blue.svg?style=flat-square)](#license)
 [![Rust 1.75+](https://img.shields.io/badge/rustc-1.75%2B-orange.svg?style=flat-square)](#installation)
 [![Tests: 332 passing](https://img.shields.io/badge/tests-332%20passing-brightgreen?style=flat-square)](#passes-every-luxon--date-fns--temporal-test)
+[![Ko-fi](https://img.shields.io/badge/Ko--fi-F16061?style=flat-square&logo=ko-fi&logoColor=white)](https://ko-fi.com/baselashraf)
 
 **A Luxon-style datetime library for Rust with full TC39 Temporal types, embedded IANA timezone data, and zero allocations in hot paths.**
 
@@ -207,6 +208,14 @@ python scripts/gen_bench_table.py --luxon luxon_results.txt
 | **v0.1** | ✅ shipped | Core types · ISO 8601 parser · IANA tz · strftime + Luxon tokens · 332 tests · criterion benchmarks |
 | **v0.2** | 🔜 planned | `no_std` · `with()` field mutation · `round()` · `since/until` · `Interval` type · `from_plain_datetime` · 40 date-fns fns · `serde` ISO strings · WASM JS bindings |
 | **v1.0** | 🔮 future | Full TC39 Temporal spec compliance · non-Gregorian calendars · locale-aware formatting |
+
+---
+
+## ☕ Support
+
+If fastemporal is useful to you, consider buying me a coffee — it helps keep the project moving.
+
+[![Ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/baselashraf)
 
 ---
 
